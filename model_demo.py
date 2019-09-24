@@ -1,6 +1,7 @@
 """
 Demo the model at test time
 """
+import os
 import pickle
 import yaml
 import numpy as np
@@ -13,6 +14,7 @@ MODEL_PATH = "saved_models/model_1.h5"
 VEC_PATH = "saved_models/count_vec_1.pkl"
 
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
     print("Loading data...")
     X, y = load_wine_data(DATA_PATH, "points")
     random_idx = (np.random.rand(5)*len(X)).astype(int)

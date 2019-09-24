@@ -1,6 +1,7 @@
 """
 Model training module
 """
+import os
 import pickle
 import yaml
 import numpy as np
@@ -14,6 +15,7 @@ MODEL_PATH = "saved_models/model_1.h5"
 VEC_PATH = "saved_models/count_vec_1.pkl"
 
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
     X, y = load_wine_data(
         dataset_path=DATA_PATH,
         target_feature=TARGET,
