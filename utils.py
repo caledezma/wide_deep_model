@@ -96,7 +96,7 @@ def get_wide_deep_model(
         model_output = tf.keras.layers.Dense(
             units=n_units,
             activation="relu",
-            kernel_regularizer=tf.keras.regularizers.l2(reg_coeff),
+            kernel_regularizer=tf.keras.regularizers.l2(float(reg_coeff)),
         )(model_output)
         model_output = tf.keras.layers.Dropout(rate=dropout_prob)(model_output)
         model_output = tf.keras.layers.BatchNormalization()(model_output)
