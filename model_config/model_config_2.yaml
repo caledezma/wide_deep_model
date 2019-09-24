@@ -1,9 +1,9 @@
-# Configuration with one epoch, ideal for testing code
+# Same as config 1, but with 64 epochs. This should learn something
 embedding_size: 64
 num_layers: 2
 n_units: 256
 dropout_prob: 0.2
 learning_rate: 1e-3
 lr_decay: 1e-6
-epochs: 1
+epochs: 64
 batch_size: 256

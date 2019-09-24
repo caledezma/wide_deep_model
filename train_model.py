@@ -10,9 +10,9 @@ from utils import load_wine_data, process_data, get_wide_deep_model
 
 DATA_PATH = "wine_data/wine_dataset.csv"
 TARGET = "points"
-MODEL_CONFIG = "model_config/model_config_1.yaml"
-MODEL_PATH = "saved_models/model_1.h5"
-VEC_PATH = "saved_models/count_vec_1.pkl"
+MODEL_CONFIG = "model_config/model_config_2.yaml"
+MODEL_PATH = "saved_models/model_2.h5"
+VEC_PATH = "saved_models/count_vec_2.pkl"
 
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
