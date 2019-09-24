@@ -26,9 +26,7 @@ def main():
         print("Description:\n", desc)
         print("Target:", target, )
 
-    X_wide, X_deep, count_vec = process_data(text_feature=X)
-    print("Saving tokeniser")
-    pickle.dump(count_vec, open(VEC_PATH, "wb"))
+    X_wide, X_deep = process_data(text_feature=X, vec_path=VEC_PATH)
     X_wide_train, X_wide_test, X_deep_train, X_deep_test, y_train, y_test =\
         train_test_split(X_wide, X_deep, y, test_size=0.2)
 

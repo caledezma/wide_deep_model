@@ -1,6 +1,7 @@
 """
 Module containing the functions required to train a wide and deep model.
 """
+import pickle
 import tensorflow as tf
 import tqdm
 import pandas as pd
@@ -21,19 +22,22 @@ def load_wine_data(dataset_path, target_feature):
     ).drop_duplicates(subset=DESCRIPTION, keep="first")
     return dataset["description"].tolist(), dataset[target_feature].tolist()
 
-def process_data(text_feature, vocab_size=2000, doc_length_est=500):
+def process_data(text_feature, count_vec=None, vec_path=None, vocab_size=2000, doc_length_est=500):
     """
     Processes the text feature using the count vectoriser and returns it in a format that is
     suitable for training a wide and deep model
     """
     print("Calculating inputs to wide model")
-    count_vec = CountVectorizer(
-        lowercase=True,
-        strip_accents="unicode",
-        stop_words="english",
-        max_features=vocab_size,
-    )
-    wide_inputs = (count_vec.fit_transform(raw_documents=text_feature) > 0).astype(int)
+    if not count_vec:
+        count_vec = CountVectorizer(
+            lowercase=True,
+            strip_accents="unicode",
+            stop_words="english",
+            max_features=vocab_size,
+        )
+        wide_inputs = (count_vec.fit_transform(raw_documents=text_feature) > 0).astype(int)
+    else:
+        wide_inputs = (count_vec.transform(raw_documents=text_feature) > 0).astype(int)
     vocab = count_vec.get_feature_names()
     unk = len(vocab) + 1
     analyse = count_vec.build_analyzer()
@@ -61,7 +65,10 @@ def process_data(text_feature, vocab_size=2000, doc_length_est=500):
     if max_doc_length < doc_length_est:
         deep_inputs = deep_inputs[:, :max_doc_length]
 
-    return wide_inputs, deep_inputs, count_vec
+    if vec_path:
+        print("Saving vectoriser")
+        pickle.dump(count_vec, open(vec_path, "wb"))
+    return wide_inputs, deep_inputs
 
 def get_wide_deep_model(
     num_wide_features,
