@@ -1,22 +1,28 @@
 """
 Demo the model at test time
 """
+import os
+import pickle
 import yaml
 import numpy as np
 
-from utils import load_wine_data, process_data, get_wide_deep_model
+from utils import load_wine_data, get_wide_deep_model, process_data
 
 MODEL_CONFIG = "model_config/model_config_1.yaml"
 DATA_PATH = "wine_data/wine_dataset.csv"
 MODEL_PATH = "saved_models/model_1.h5"
+VEC_PATH = "saved_models/count_vec_1.pkl"
 
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
     print("Loading data...")
     X, y = load_wine_data(DATA_PATH, "points")
     random_idx = (np.random.rand(5)*len(X)).astype(int)
-    X, y = X[random_idx], y[random_idx]
-    X_wide, X_deep = process_data(X)
+    X = [X[idx] for idx in random_idx]
+    y = [y[idx] for idx in random_idx]
 
+    count_vec = pickle.load(open(VEC_PATH, "rb"))
+    X_wide, X_deep = process_data(X, count_vec=count_vec)
 
     print("Constructing Keras model...")
     model_config = yaml.safe_load(open(MODEL_CONFIG, "r"))

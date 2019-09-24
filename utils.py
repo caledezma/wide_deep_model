@@ -1,6 +1,7 @@
 """
 Module containing the functions required to train a wide and deep model.
 """
+import pickle
 import tensorflow as tf
 import tqdm
 import pandas as pd
@@ -21,19 +22,22 @@ def load_wine_data(dataset_path, target_feature):
     ).drop_duplicates(subset=DESCRIPTION, keep="first")
     return dataset["description"].tolist(), dataset[target_feature].tolist()
 
-def process_data(text_feature, vocab_size=2000, doc_length_est=500):
+def process_data(text_feature, count_vec=None, vec_path=None, vocab_size=2000, doc_length_est=500):
     """
     Processes the text feature using the count vectoriser and returns it in a format that is
     suitable for training a wide and deep model
     """
     print("Calculating inputs to wide model")
-    count_vec = CountVectorizer(
-        lowercase=True,
-        strip_accents="unicode",
-        stop_words="english",
-        max_features=vocab_size,
-    )
-    wide_inputs = (count_vec.fit_transform(raw_documents=text_feature) > 0).astype(int)
+    if not count_vec:
+        count_vec = CountVectorizer(
+            lowercase=True,
+            strip_accents="unicode",
+            stop_words="english",
+            max_features=vocab_size,
+        )
+        wide_inputs = (count_vec.fit_transform(raw_documents=text_feature) > 0).astype(int)
+    else:
+        wide_inputs = (count_vec.transform(raw_documents=text_feature) > 0).astype(int)
     vocab = count_vec.get_feature_names()
     unk = len(vocab) + 1
     analyse = count_vec.build_analyzer()
@@ -61,6 +65,9 @@ def process_data(text_feature, vocab_size=2000, doc_length_est=500):
     if max_doc_length < doc_length_est:
         deep_inputs = deep_inputs[:, :max_doc_length]
 
+    if vec_path:
+        print("Saving vectoriser")
+        pickle.dump(count_vec, open(vec_path, "wb"))
     return wide_inputs, deep_inputs
 
 def get_wide_deep_model(
@@ -82,7 +89,7 @@ def get_wide_deep_model(
     model_output = tf.keras.layers.Embedding(
         num_wide_features+2,
         embedding_size,
-        input_length=num_deep_features)(deep_input)
+    )(deep_input)
     model_output = tf.keras.backend.sum(model_output, axis=1)
     for _ in range(n_units):
         model_output = tf.keras.layers.Dense(units=n_units, activation="relu")(model_output)
@@ -92,13 +99,6 @@ def get_wide_deep_model(
     model_output = tf.keras.layers.concatenate([wide_input, model_output])
     model_output = tf.keras.layers.Dense(units=1)(model_output)
     model = tf.keras.Model([wide_input, deep_input], model_output)
-
-#   config = tf.ConfigProto(
-#       intra_op_parallelism_threads=1,
-#       inter_op_parallelism_threads=1,
-#       device_count = {'CPU': 1}
-#   )
-#   tf.keras.backend.set_session(tf.Session(config=config))
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(

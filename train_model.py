@@ -1,7 +1,8 @@
 """
 Model training module
 """
-import pdb
+import os
+import pickle
 import yaml
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -11,8 +12,10 @@ DATA_PATH = "wine_data/wine_dataset.csv"
 TARGET = "points"
 MODEL_CONFIG = "model_config/model_config_1.yaml"
 MODEL_PATH = "saved_models/model_1.h5"
+VEC_PATH = "saved_models/count_vec_1.pkl"
 
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
     X, y = load_wine_data(
         dataset_path=DATA_PATH,
         target_feature=TARGET,
@@ -25,7 +28,7 @@ def main():
         print("Description:\n", desc)
         print("Target:", target, )
 
-    X_wide, X_deep = process_data(text_feature=X)
+    X_wide, X_deep = process_data(text_feature=X, vec_path=VEC_PATH)
     X_wide_train, X_wide_test, X_deep_train, X_deep_test, y_train, y_test =\
         train_test_split(X_wide, X_deep, y, test_size=0.2)
 
@@ -58,7 +61,7 @@ def main():
     mse = model.evaluate(
         x=[X_wide_test, X_deep_test],
         y=y_test,
-        batch_size=model_config["batch_size"]
+        batch_size=model_config["batch_size"],
         verbose=1
     )
     print("Evaluation MSE:", mse)
