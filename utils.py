@@ -61,7 +61,7 @@ def process_data(text_feature, vocab_size=2000, doc_length_est=500):
     if max_doc_length < doc_length_est:
         deep_inputs = deep_inputs[:, :max_doc_length]
 
-    return wide_inputs, deep_inputs
+    return wide_inputs, deep_inputs, count_vec
 
 def get_wide_deep_model(
     num_wide_features,
@@ -82,7 +82,7 @@ def get_wide_deep_model(
     model_output = tf.keras.layers.Embedding(
         num_wide_features+2,
         embedding_size,
-        input_length=num_deep_features)(deep_input)
+    )(deep_input)
     model_output = tf.keras.backend.sum(model_output, axis=1)
     for _ in range(n_units):
         model_output = tf.keras.layers.Dense(units=n_units, activation="relu")(model_output)
@@ -92,13 +92,6 @@ def get_wide_deep_model(
     model_output = tf.keras.layers.concatenate([wide_input, model_output])
     model_output = tf.keras.layers.Dense(units=1)(model_output)
     model = tf.keras.Model([wide_input, deep_input], model_output)
-
-#   config = tf.ConfigProto(
-#       intra_op_parallelism_threads=1,
-#       inter_op_parallelism_threads=1,
-#       device_count = {'CPU': 1}
-#   )
-#   tf.keras.backend.set_session(tf.Session(config=config))
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(
