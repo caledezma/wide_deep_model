@@ -79,6 +79,7 @@ def get_wide_deep_model(
     dropout_prob=0.2,
     learning_rate=1e-3,
     lr_decay=1e-6,
+    reg_coeff=1e-5,
     **kwargs
 ):
     """
@@ -95,7 +96,7 @@ def get_wide_deep_model(
         model_output = tf.keras.layers.Dense(
             units=n_units,
             activation="relu",
-            kernel_regularizer="l2",
+            kernel_regularizer=tf.keras.regularizers.l2(reg_coeff),
         )(model_output)
         model_output = tf.keras.layers.Dropout(rate=dropout_prob)(model_output)
         model_output = tf.keras.layers.BatchNormalization()(model_output)
