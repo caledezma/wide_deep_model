@@ -102,7 +102,10 @@ def get_wide_deep_model(
         model_output = tf.keras.layers.BatchNormalization()(model_output)
 
     model_output = tf.keras.layers.concatenate([wide_input, model_output])
-    model_output = tf.keras.layers.Dense(units=1)(model_output)
+    model_output = tf.keras.layers.Dense(
+        units=1,
+        kernel_regularizer=tf.keras.regularizers.l2(float(reg_coeff))
+    )(model_output)
     model = tf.keras.Model([wide_input, deep_input], model_output)
 
     model.compile(
