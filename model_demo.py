@@ -8,10 +8,22 @@ import numpy as np
 
 from utils import load_wine_data, get_wide_deep_model, process_data
 
-MODEL_CONFIG = ["model_config/model_config_1.yaml", "model_config/model_config_2.yaml"]
+MODEL_CONFIG = [
+    "model_config/model_config_1.yaml",
+    "model_config/model_config_2.yaml",
+    "model_config/model_config_3.yaml",
+]
 DATA_PATH = "wine_data/wine_dataset.csv"
-MODEL_PATH = ["saved_models/model_1.h5", "saved_models/model_2.h5"]
-VEC_PATH = ["saved_models/count_vec_2.pkl", "saved_models/count_vec_2.pkl"]
+MODEL_PATH = [
+    "saved_models/model_1.h5",
+    "saved_models/model_2.h5",
+    "saved_models/model_3.h5",
+]
+VEC_PATH = [
+    "saved_models/count_vec_1.pkl",
+    "saved_models/count_vec_2.pkl",
+    "saved_models/count_vec_3.pkl",
+]
 
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
