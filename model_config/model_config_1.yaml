@@ -1,4 +1,5 @@
 # Configuration with one epoch, ideal for testing code
+vocab_size: 2000
 embedding_size: 64
 num_layers: 2
 n_units: 256

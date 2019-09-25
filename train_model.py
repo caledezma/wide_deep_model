@@ -10,9 +10,9 @@ from utils import load_wine_data, process_data, get_wide_deep_model
 
 DATA_PATH = "wine_data/wine_dataset.csv"
 TARGET = "points"
-MODEL_CONFIG = "model_config/model_config_2.yaml"
-MODEL_PATH = "saved_models/model_2.h5"
-VEC_PATH = "saved_models/count_vec_2.pkl"
+MODEL_CONFIG = "model_config/model_config_3.yaml"
+MODEL_PATH = "saved_models/model_3.h5"
+VEC_PATH = "saved_models/count_vec_3.pkl"
 
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
@@ -24,11 +24,12 @@ def main():
     y=np.array(y)
 
     print("Dataset loaded {0} examples".format(len(X)))
-    for desc, target in zip(X[:5], y[:5]):
-        print("Description:\n", desc)
-        print("Target:", target, )
-
-    X_wide, X_deep = process_data(text_feature=X, vec_path=VEC_PATH)
+    model_config = yaml.safe_load(open(MODEL_CONFIG, "r"))
+    X_wide, X_deep = process_data(
+        text_feature=X,
+        vec_path=VEC_PATH,
+        vocab_size=model_config["vocab_size"]
+    )
     X_wide_train, X_wide_test, X_deep_train, X_deep_test, y_train, y_test =\
         train_test_split(X_wide, X_deep, y, test_size=0.2)
 
@@ -39,7 +40,6 @@ def main():
         y_test.shape[0],
         "examples"
     )
-    model_config = yaml.safe_load(open(MODEL_CONFIG, "r"))
 
     print("Constructing Keras model")
     model = get_wide_deep_model(
