@@ -1,4 +1,4 @@
-# Same as config 1, but with 64 epochs. This should learn something
+# Less in the wide part and more in the deep part. What happens?
 vocab_size: 1000
 embedding_size: 128
 num_layers: 2

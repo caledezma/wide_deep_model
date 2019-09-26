@@ -1,4 +1,4 @@
-# Same as config 2, but with 40 epochs. This should learn something
+# Same as config 2, but with 40 epochs. Early stopping any good?
 vocab_size: 2000
 embedding_size: 64
 num_layers: 2
