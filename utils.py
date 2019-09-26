@@ -92,7 +92,7 @@ def get_wide_deep_model(
         embedding_size,
     )(deep_input)
     model_output = tf.keras.backend.sum(model_output, axis=1)
-    for _ in range(n_units):
+    for _ in range(num_layers):
         model_output = tf.keras.layers.Dense(
             units=n_units,
             activation="relu",
