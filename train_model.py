@@ -2,32 +2,69 @@
 Model training module
 """
 import os
+import argparse
 import pickle
 import yaml
 import numpy as np
 from sklearn.model_selection import train_test_split
-from utils import load_wine_data, process_data, get_wide_deep_model
-
-DATA_PATH = "wine_data/wine_dataset.csv"
-TARGET = "points"
-MODEL_CONFIG = "model_config/model_config_1.yaml"
-MODEL_PATH = "saved_models/model_1.h5"
-VEC_PATH = "saved_models/count_vec_1.pkl"
+from utils import load_data, process_data, get_wide_deep_model
 
 def main():
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--data-path",
+        help="Full path to where the dataset is located.",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--features-field",
+        help="Name of the field (in the dataset) that contains the training features",
+        type=str,
+        default="description"
+    )
+    arg_parser.add_argument(
+        "--target-field",
+        help="Name of the field (in the dataset) that contains the targets to be used for training",
+        type=str,
+        default="points",
+    )
+    arg_parser.add_argument(
+        "--model-config",
+        help="Full path to the yaml file containing the model details.",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--model-path",
+        help="Full path to where the ML model should be saved. The mdoel is saved as tf.keras H5",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--vectoriser-path",
+        help="Full path to where the text vectoriser should be saved. The vectoriser is saved as a"
+            " pickled sklearn CountVectorizer",
+        type=str,
+        required=True,
+    )
+
+    args = arg_parser.parse_args()
+
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
-    X, y = load_wine_data(
-        dataset_path=DATA_PATH,
-        target_feature=TARGET,
+    X, y = load_data(
+        dataset_path=args.data_path,
+        feature_field=args.features_field,
+        target_field=args.target_field,
     )
 
     y=np.array(y)
 
     print("Dataset loaded {0} examples".format(len(X)))
-    model_config = yaml.safe_load(open(MODEL_CONFIG, "r"))
+    model_config = yaml.safe_load(open(args.model_config, "r"))
     X_wide, X_deep = process_data(
         text_feature=X,
-        vec_path=VEC_PATH,
+        vec_path=args.vectoriser_path,
         vocab_size=model_config["vocab_size"]
     )
     X_wide_train, X_wide_test, X_deep_train, X_deep_test, y_train, y_test =\
@@ -67,7 +104,7 @@ def main():
     print("Evaluation MSE:", mse)
 
     print("Saving ML model")
-    model.save_weights(MODEL_PATH)
+    model.save_weights(args.model_path)
 
 if __name__ == "__main__":
     main()

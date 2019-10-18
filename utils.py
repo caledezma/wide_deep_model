@@ -10,17 +10,17 @@ import numpy as np
 
 DESCRIPTION = "description"
 
-def load_wine_data(dataset_path, target_feature):
+def load_data(dataset_path, feature_field, target_field):
     """
     Loads the kaggle wine dataset with the desired target feature.
     """
     dataset = pd.read_csv(
         dataset_path
-    )[[DESCRIPTION, target_feature]].dropna(
+    )[[feature_field, target_field]].dropna(
         axis=0,
         how="any"
-    ).drop_duplicates(subset=DESCRIPTION, keep="first")
-    return dataset["description"].tolist(), dataset[target_feature].tolist()
+    ).drop_duplicates(subset=feature_field, keep="first")
+    return dataset[feature_field].tolist(), dataset[target_field].tolist()
 
 def process_data(text_feature, count_vec=None, vec_path=None, vocab_size=2000, doc_length_est=500):
     """
