@@ -8,25 +8,6 @@ import numpy as np
 
 from utils import load_data, get_wide_deep_model, process_data, parse_cli_args
 
-MODEL_CONFIG = [
-    "model_config/model_config_1.yaml",
-    "model_config/model_config_2.yaml",
-    "model_config/model_config_3.yaml",
-    "model_config/model_config_4.yaml",
-]
-DATA_PATH = "wine_data/wine_dataset.csv"
-MODEL_PATH = [
-    "saved_models/model_1.h5",
-    "saved_models/model_2.h5",
-    "saved_models/model_3.h5",
-    "saved_models/model_4.h5",
-]
-VEC_PATH = [
-    "saved_models/count_vec_1.pkl",
-    "saved_models/count_vec_2.pkl",
-    "saved_models/count_vec_3.pkl",
-    "saved_models/count_vec_4.pkl",
-]
 
 def main():
     """Main block of code. Loads the data, model and vectoriser and shows a demo"""
