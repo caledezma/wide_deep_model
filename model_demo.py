@@ -6,7 +6,7 @@ import pickle
 import yaml
 import numpy as np
 
-from utils import load_wine_data, get_wide_deep_model, process_data
+from utils import load_data, get_wide_deep_model, process_data, parse_cli_args
 
 MODEL_CONFIG = [
     "model_config/model_config_1.yaml",
@@ -29,40 +29,41 @@ VEC_PATH = [
 ]
 
 def main():
+    """Main block of code. Loads the data, model and vectoriser and shows a demo"""
+    args = parse_cli_args()
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
+
     print("Loading data...")
-    X, y = load_wine_data(DATA_PATH, "points")
+    X, y = load_data(
+        dataset_path=args.data_path,
+        feature_field=args.features_field,
+        target_field=args.target_field,
+    )
+    # Choose five random examples to show
     random_idx = (np.random.rand(5)*len(X)).astype(int)
     X = [X[idx] for idx in random_idx]
     y = [y[idx] for idx in random_idx]
 
-    X_wide_deep = [
-        process_data(X, count_vec=pickle.load(open(vectoriser, "rb"))) for vectoriser in VEC_PATH
-    ]
+    X_wide_deep = process_data(
+        text_feature=X,
+        count_vec=pickle.load(open(args.vectoriser_path, "rb")),
+    )
 
-    print("Constructing Keras models...")
-    prediction_models = [
-        get_wide_deep_model(
-            num_wide_features=X[0].shape[1],
-            num_deep_features=X[1].shape[1],
-            **yaml.safe_load(open(model_conf, "r")),
-        ) for X, model_conf in zip(X_wide_deep, MODEL_CONFIG)]
-
-    for weights, model in zip(MODEL_PATH, prediction_models):
-        model.load_weights(weights)
-
+    print("Constructing Keras model")
+    prediction_model = get_wide_deep_model(
+        num_wide_features=X_wide_deep[0].shape[1],
+        num_deep_features=X_wide_deep[1].shape[1],
+        **yaml.safe_load(open(args.model_config, "r")),
+    )
+    prediction_model.load_weights(args.model_path)
     print("Predicting...")
-    predictions = [
-            model.predict([X[0], X[1]], verbose=0)\
-                for X, model in zip(X_wide_deep, prediction_models)
-    ]
+    predictions = prediction_model.predict([X_wide_deep[0], X_wide_deep[1]], verbose=0)
 
-    for pred_idx, description, target in zip(range(len(X)), X, y):
+    for prediction, text, target in zip(predictions, X, y):
         print("="*100)
-        print("Wine review:\n", description)
-        print("Reviewer score:", target)
-        for model_idx in range(len(prediction_models)):
-            print("Model", model_idx, "prediction:", predictions[model_idx][pred_idx])
+        print("Text:\n", text)
+        print("Target:", target)
+        print("Model's prediction:", prediction)
 
 if __name__ == "__main__":
     main()

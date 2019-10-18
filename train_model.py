@@ -2,55 +2,15 @@
 Model training module
 """
 import os
-import argparse
 import pickle
 import yaml
 import numpy as np
 from sklearn.model_selection import train_test_split
-from utils import load_data, process_data, get_wide_deep_model
+from utils import load_data, process_data, get_wide_deep_model, parse_cli_args
 
 def main():
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument(
-        "--data-path",
-        help="Full path to where the dataset is located.",
-        type=str,
-        required=True,
-    )
-    arg_parser.add_argument(
-        "--features-field",
-        help="Name of the field (in the dataset) that contains the training features",
-        type=str,
-        default="description"
-    )
-    arg_parser.add_argument(
-        "--target-field",
-        help="Name of the field (in the dataset) that contains the targets to be used for training",
-        type=str,
-        default="points",
-    )
-    arg_parser.add_argument(
-        "--model-config",
-        help="Full path to the yaml file containing the model details.",
-        type=str,
-        required=True,
-    )
-    arg_parser.add_argument(
-        "--model-path",
-        help="Full path to where the ML model should be saved. The mdoel is saved as tf.keras H5",
-        type=str,
-        required=True,
-    )
-    arg_parser.add_argument(
-        "--vectoriser-path",
-        help="Full path to where the text vectoriser should be saved. The vectoriser is saved as a"
-            " pickled sklearn CountVectorizer",
-        type=str,
-        required=True,
-    )
-
-    args = arg_parser.parse_args()
-
+    """Main block of code. Reads the data, constructs the tokeniser and trains the model"""
+    args = parse_cli_args()
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
     X, y = load_data(
         dataset_path=args.data_path,
