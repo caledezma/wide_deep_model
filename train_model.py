@@ -6,28 +6,25 @@ import pickle
 import yaml
 import numpy as np
 from sklearn.model_selection import train_test_split
-from utils import load_wine_data, process_data, get_wide_deep_model
-
-DATA_PATH = "wine_data/wine_dataset.csv"
-TARGET = "points"
-MODEL_CONFIG = "model_config/model_config_1.yaml"
-MODEL_PATH = "saved_models/model_1.h5"
-VEC_PATH = "saved_models/count_vec_1.pkl"
+from utils import load_data, process_data, get_wide_deep_model, parse_cli_args
 
 def main():
+    """Main block of code. Reads the data, constructs the tokeniser and trains the model"""
+    args = parse_cli_args()
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Supress TF warnings
-    X, y = load_wine_data(
-        dataset_path=DATA_PATH,
-        target_feature=TARGET,
+    X, y = load_data(
+        dataset_path=args.data_path,
+        feature_field=args.features_field,
+        target_field=args.target_field,
     )
 
     y=np.array(y)
 
     print("Dataset loaded {0} examples".format(len(X)))
-    model_config = yaml.safe_load(open(MODEL_CONFIG, "r"))
+    model_config = yaml.safe_load(open(args.model_config, "r"))
     X_wide, X_deep = process_data(
         text_feature=X,
-        vec_path=VEC_PATH,
+        vec_path=args.vectoriser_path,
         vocab_size=model_config["vocab_size"]
     )
     X_wide_train, X_wide_test, X_deep_train, X_deep_test, y_train, y_test =\
@@ -67,7 +64,7 @@ def main():
     print("Evaluation MSE:", mse)
 
     print("Saving ML model")
-    model.save_weights(MODEL_PATH)
+    model.save_weights(args.model_path)
 
 if __name__ == "__main__":
     main()

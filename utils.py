@@ -1,6 +1,7 @@
 """
 Module containing the functions required to train a wide and deep model.
 """
+import argparse
 import pickle
 import tensorflow as tf
 import tqdm
@@ -10,17 +11,17 @@ import numpy as np
 
 DESCRIPTION = "description"
 
-def load_wine_data(dataset_path, target_feature):
+def load_data(dataset_path, feature_field, target_field):
     """
     Loads the kaggle wine dataset with the desired target feature.
     """
     dataset = pd.read_csv(
         dataset_path
-    )[[DESCRIPTION, target_feature]].dropna(
+    )[[feature_field, target_field]].dropna(
         axis=0,
         how="any"
-    ).drop_duplicates(subset=DESCRIPTION, keep="first")
-    return dataset["description"].tolist(), dataset[target_feature].tolist()
+    ).drop_duplicates(subset=feature_field, keep="first")
+    return dataset[feature_field].tolist(), dataset[target_field].tolist()
 
 def process_data(text_feature, count_vec=None, vec_path=None, vocab_size=2000, doc_length_est=500):
     """
@@ -116,3 +117,48 @@ def get_wide_deep_model(
         loss="mse",
     )
     return model
+
+def parse_cli_args():
+    """
+    Parses the CLI arguments required to train and demo the ML models
+    """
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--data-path",
+        help="Full path to where the dataset is located.",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--features-field",
+        help="Name of the field (in the dataset) that contains the training features",
+        type=str,
+        default="description"
+    )
+    arg_parser.add_argument(
+        "--target-field",
+        help="Name of the field (in the dataset) that contains the targets to be used for training",
+        type=str,
+        default="points",
+    )
+    arg_parser.add_argument(
+        "--model-config",
+        help="Full path to the yaml file containing the model details.",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--model-path",
+        help="Full path to where the ML model should be saved. The mdoel is saved as tf.keras H5",
+        type=str,
+        required=True,
+    )
+    arg_parser.add_argument(
+        "--vectoriser-path",
+        help="Full path to where the text vectoriser should be saved. The vectoriser is saved as a"
+            " pickled sklearn CountVectorizer",
+        type=str,
+        required=True,
+    )
+
+    return arg_parser.parse_args()
